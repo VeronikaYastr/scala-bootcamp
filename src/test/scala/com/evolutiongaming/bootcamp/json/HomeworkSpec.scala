@@ -57,10 +57,11 @@ class HomeworkSpec extends AnyWordSpec with Matchers with EitherValues {
 object HomeworkSpec {
 
   import io.circe.generic.extras._
-  import io.circe.generic.extras.semiauto._
 
   implicit val config: Configuration = Configuration.default
-  implicit val prevMatchupDecoder: Decoder[PrevMatchup] = deriveConfiguredDecoder[PrevMatchup].map(pm => PrevMatchup(pm.gameDate.format(DateTimeFormatter.BASIC_ISO_DATE), pm.gameId))
+  implicit val decodeInstant: Decoder[LocalDate] = Decoder.decodeString.map { str =>
+    LocalDate.parse(str, DateTimeFormatter.BASIC_ISO_DATE)
+  }
 
   @ConfiguredJsonCodec final case class TeamTotals(assists: String, @JsonKey("full_timeout_remaining") fullTimeoutRemaining: String, plusMinus: String)
 
@@ -68,7 +69,7 @@ object HomeworkSpec {
 
   @JsonCodec final case class GameStats(hTeam: TeamBoxScore, vTeam: TeamBoxScore)
 
-  @JsonCodec final case class PrevMatchup(gameDate: String, gameId: String)
+  @JsonCodec final case class PrevMatchup(gameDate: LocalDate, gameId: String)
 
   @JsonCodec final case class BoxScore(
                                         basicGameData: Game,
