@@ -59,7 +59,7 @@ object HomeworkSpec {
   import io.circe.generic.extras._
 
   implicit val config: Configuration = Configuration.default
-  implicit val decodeInstant: Decoder[LocalDate] = Decoder.decodeString.map { str =>
+  implicit val decodeLocalDate: Decoder[LocalDate] = Decoder.decodeString.map { str =>
     LocalDate.parse(str, DateTimeFormatter.BASIC_ISO_DATE)
   }
 
