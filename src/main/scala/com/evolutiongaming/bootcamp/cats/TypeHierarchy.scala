@@ -53,13 +53,13 @@ object Excercises {
     def unit[A](a: => A): F[A]
 
     // implement methods using other methods
-    def map2[A,B,C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C] = ???
+    def map2[A,B,C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C] = map(apply(map(fa)(a => (b: B) => (a, b)))(fb))(t => f(t._1, t._2))
 
-    def apply[A,B](fab: F[A => B])(fa: F[A]): F[B] = ???
+    def apply[A,B](fab: F[A => B])(fa: F[A]): F[B] = unit(map(fab)(f => map(fa)(f)))
 
-    def sequence[A](fas: List[F[A]]): F[List[A]] = ???
+    def sequence[A](fas: List[F[A]]): F[List[A]] = unit(fas.foldRight(unit(List.empty))((a, b) => map2(a, b)(_ :: _)))
 
-    def traverse[A,B](as: List[A])(f: A => F[B]): F[List[B]] = ???
+    def traverse[A,B](as: List[A])(f: A => F[B]): F[List[B]] = sequence(as.map(f))
   }
 
   trait Monad[M[_]] extends Functor[M] {
