@@ -29,13 +29,7 @@ object AuthorsRoutes {
     } yield status
 
     case POST -> Root / "authors" :? NameMatcher(name) :? BirthdayMatcher(birthday) =>
-      for {
-        insertResult <- authorsDao.insertAuthor(name, birthday)
-        status <- insertResult match {
-          case 0 => InternalServerError("Cannot save author.")
-          case _ => Ok("Success")
-        }
-      } yield status
+      Ok(authorsDao.insertAuthor(name, birthday))
 
     case PUT -> Root / "authors" / UUIDVar(id) :? NameMatcher(name) =>
       for {

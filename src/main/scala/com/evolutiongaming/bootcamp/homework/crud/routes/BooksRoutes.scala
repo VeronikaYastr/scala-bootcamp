@@ -24,13 +24,7 @@ object BooksRoutes {
     } yield status
 
     case req@POST -> Root / "books" =>
-      req.as[ShortBookInfo].flatMap(book => for {
-        insertResult <- booksDao.insertBook(book)
-        status <- insertResult match {
-          case 0 => InternalServerError("Cannot save book.")
-          case _ => Ok("Success")
-        }
-      } yield status)
+      req.as[ShortBookInfo].flatMap(book => Ok(booksDao.insertBook(book)))
 
     case PUT -> Root / "books" / UUIDVar(id) :? TitleMatcher(title) =>
       for {

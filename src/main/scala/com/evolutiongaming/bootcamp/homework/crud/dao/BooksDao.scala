@@ -15,7 +15,7 @@ import doobie.util.transactor.Transactor
 trait BooksDao {
   def getBooks: IO[List[Book]]
   def getBook(id: UUID): IO[Option[Book]]
-  def insertBook(book: ShortBookInfo): IO[Int]
+  def insertBook(book: ShortBookInfo): UUID
   def updateBook(id: UUID, title: String): IO[Int]
   def deleteBook(id: UUID): IO[Int]
 }
@@ -34,10 +34,11 @@ class BooksDaoImpl(xa: Transactor[IO]) extends BooksDao {
     queryBook.query[Book].option.transact(xa)
   }
 
-  override def insertBook(book: ShortBookInfo): IO[Int] = {
+  override def insertBook(book: ShortBookInfo): UUID = {
     val id = UUID.randomUUID()
     val insertBookQuery = sql"INSERT INTO books (id, author, title, year, genre) VALUES ($id, ${book.authorId}, ${book.title}, ${book.year}, ${book.genre} );"
     insertBookQuery.update.run.transact(xa)
+    id
   }
 
  override def updateBook(id: UUID, title: String): IO[Int] = {

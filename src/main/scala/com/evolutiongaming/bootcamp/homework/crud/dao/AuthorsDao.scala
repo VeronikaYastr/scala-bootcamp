@@ -14,7 +14,7 @@ import doobie.h2._
 
 trait AuthorsDao {
   def getAuthors: IO[List[Author]]
-  def insertAuthor(name: String, birthday: LocalDate): IO[Int]
+  def insertAuthor(name: String, birthday: LocalDate): UUID
   def updateAuthor(id: UUID, name: String): IO[Int]
   def getAuthor(id: UUID): IO[Option[Author]]
   def deleteAuthor(id: UUID): IO[Int]
@@ -34,10 +34,11 @@ class AuthorsDaoImpl(xa: Transactor[IO]) extends AuthorsDao {
     queryAuthor.query[Author].option.transact(xa)
   }
 
-  override def insertAuthor(name: String, birthday: LocalDate): IO[Int] = {
+  override def insertAuthor(name: String, birthday: LocalDate): UUID = {
     val id = UUID.randomUUID()
     val insertAuthorQuery = sql"INSERT INTO authors (id, name, birthday) VALUES ($id, $name ,$birthday );"
     insertAuthorQuery.update.run.transact(xa)
+    id
   }
 
  override def updateAuthor(id: UUID, name: String): IO[Int] = {
