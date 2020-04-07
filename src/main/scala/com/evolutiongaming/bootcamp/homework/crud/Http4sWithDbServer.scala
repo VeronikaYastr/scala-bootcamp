@@ -27,13 +27,14 @@ object Http4sWithDbServer extends IOApp {
 
     def transactor(config: Config): Transactor[IO] = {
       val tr = DaoInit.transactor(config.dbConfig)
-      DaoInit.initTables(tr)
+      DaoInit.initTables(tr).unsafeRunSync()
       tr
     }
 
     val stream = for {
       config <- Stream.eval(Config.load())
-      serv <- serveStream(transactor(config), config.serverConfig)
+      tr = transactor(config)
+      serv <- serveStream(tr, config.serverConfig)
     } yield serv
 
     stream.compile.drain.as(ExitCode.Success)
