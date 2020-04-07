@@ -25,20 +25,15 @@ object Http4sWithDbServer extends IOApp {
 
   override def run(args: List[String]): IO[ExitCode] = {
 
-    val serverConfig = for {
-      config <- Config.load()
-    } yield config.serverConfig
-
-    val transactor = for {
-      config <- Config.load()
-      tr <- IO(DaoInit.transactor(config.dbConfig))
-      _ <- DaoInit.initTables(tr)
-    } yield tr
+    def transactor(config: Config): Transactor[IO] = {
+      val tr = DaoInit.transactor(config.dbConfig)
+      DaoInit.initTables(tr)
+      tr
+    }
 
     val stream = for {
-      tr <- Stream.eval(transactor)
-      sConfig <- Stream.eval(serverConfig)
-      serv <- serveStream(tr, sConfig)
+      config <- Stream.eval(Config.load())
+      serv <- serveStream(transactor(config), config.serverConfig)
     } yield serv
 
     stream.compile.drain.as(ExitCode.Success)
