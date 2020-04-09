@@ -7,7 +7,10 @@ import com.evolutiongaming.bootcamp.homework.crud.dao.{AuthorsDaoImpl, BooksDaoI
 import com.evolutiongaming.bootcamp.homework.crud.routes.{AuthorsRoutes, BooksRoutes}
 import doobie.util.transactor.Transactor
 import fs2.Stream
+import io.circe.generic.auto._
 import org.http4s._
+import org.http4s.circe.CirceEntityCodec._
+import org.http4s.dsl.io._
 import org.http4s.implicits._
 import org.http4s.server.blaze.BlazeServerBuilder
 
